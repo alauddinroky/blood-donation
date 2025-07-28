@@ -1,4 +1,6 @@
 // components/HowItWorks.jsx
+'use client'
+import {motion } from 'motion/react'
 const HowItWorks = () => {
   const steps = [
     {
@@ -24,7 +26,13 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section className="bg-[#1A1A1A] py-16 px-6">
+    <motion.div
+  initial={{ backgroundColor: "#111111", opacity: .8  }}
+  whileInView={{background: "#1A1A1A", opacity: 1 }}
+  transition={{duration: 1}}
+  viewport={{ amount: .7 }}
+>
+    <section className=" py-16 px-6">
       <div className="container mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold text-[#E63946] text-center mb-12">How It Works</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -45,6 +53,7 @@ const HowItWorks = () => {
         </div>
       </div>
     </section>
+    </motion.div>
   );
 };
 

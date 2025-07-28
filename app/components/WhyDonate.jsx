@@ -1,4 +1,6 @@
 // components/WhyDonate.jsx
+'use client'
+import { motion } from 'motion/react';
 import { FaHeart, FaHospitalUser, FaHandsHelping } from 'react-icons/fa';
 
 const WhyDonate = () => {
@@ -19,8 +21,34 @@ const WhyDonate = () => {
       description: 'Be a vital part of your community by contributing to a shared pool of life-saving resources.',
     },
   ];
-
+const cardContainer = {
+    overflow: "hidden",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    paddingTop: 20,
+    marginBottom: -120,
+}
+const cardVariants = {
+    offscreen: {
+        opacity: 0.4,
+        scale: .9
+    },
+    onscreen: {
+        opacity: 1,
+        scale: 1
+    },
+}
   return (
+    <motion.div
+            // className={`card-container-${i}`}
+            // style={cardContainer}
+            initial='offscreen'
+            whileInView='onscreen'
+            viewport={{ amount: .9 }}
+            variants={cardVariants}
+        >
     <section className="bg-[#1A1A1A] py-16 px-6">
       <div className="container mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold text-[#E63946] text-center mb-12">Why Donate Blood?</h2>
@@ -38,6 +66,7 @@ const WhyDonate = () => {
         </div>
       </div>
     </section>
+    </motion.div>
   );
 };
 

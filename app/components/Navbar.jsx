@@ -1,6 +1,6 @@
 // components/Navbar.tsx
 "use client";
-
+import { motion } from "framer-motion";
 import { useState } from "react";
 import Link from "next/link";
 import { FaBars, FaTimes } from "react-icons/fa";

@@ -18,7 +18,6 @@ export default function Home() {
       </Head>
       <Navbar />
       <main>
-        <div className='text-red'>Hello</div>
         <Hero />
         <WhyDonate />
         <UpcomingCamps />
