@@ -40,14 +40,33 @@ const RegisterForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Function to handle form submission
-  const onSubmit = async (data) => {
-    setIsSubmitting(true);
-    console.log("Register Data:", data); // Log form data to console
-    await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
-    alert("Registration attempt (check console for data)"); // Show a basic alert
+ const onSubmit = async (data) => {
+  setIsSubmitting(true);
+  try {
+    // Send name, email, and password (confirmPassword is for frontend validation only)
+    const payload = { name: data.name, email: data.email, password: data.password };
+
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (response.ok) {
+      const result = await response.json();
+      console.log('Registration successful:', result);
+      // Handle successful registration: Redirect to login, show a message, etc.
+      alert('Registration successful!');
+    } else {
+      const errorData = await response.json();
+      alert(errorData.message);
+    }
+  } catch (error) {
+    console.error('Registration failed:', error);
+    alert('An unexpected error occurred.');
+  } finally {
     setIsSubmitting(false);
-    // In a real application, you would send this data to your backend for user registration
-  };
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#111111] p-4">

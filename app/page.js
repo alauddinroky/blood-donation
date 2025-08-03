@@ -16,7 +16,7 @@ export default function Home() {
       <Head>
         <Link rel='icon' href='./favicon.ico' />
       </Head>
-      <Navbar />
+      {/* <Navbar /> */}
       <main>
         <Hero />
         <WhyDonate />
@@ -24,7 +24,7 @@ export default function Home() {
         <HowItWorks />
         <Testimonials />
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

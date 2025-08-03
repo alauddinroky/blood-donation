@@ -1,26 +1,50 @@
-// components/Navbar.tsx
 "use client";
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { FaBars, FaTimes } from "react-icons/fa";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "#about", label: "About" },
-    { href: "#donate", label: "Donate" },
-    { href: "#contact", label: "Contact" },
+    { href: "/about-us", label: "About" },
+    { href: "/dashboard/donors", label: "Donors" },
+    { href: "/contact-us", label: "Contact" },
   ];
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await fetch("/api/auth/verify", { credentials: "include" });
+        if (res.ok) {
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false); 
+        }
+      } catch (err) {
+        setIsLoggedIn(false);
+      }
+    };
+    checkLogin();
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    setIsLoggedIn(false);
+    router.push("/");
+  };
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-[#111111] shadow-md">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link href="/" className="text-2xl font-bold text-white">
             LifeBlood
           </Link>
@@ -36,15 +60,24 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/login"
-              className="bg-[#E63946] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#d12e3e] transition"
-            >
-              Login
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="bg-[#E63946] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#d12e3e] transition"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-[#E63946] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#d12e3e] transition"
+              >
+                Login
+              </Link>
+            )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Toggle */}
           <div className="md:hidden">
             <button
               onClick={toggleMenu}
@@ -57,7 +90,7 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Dropdown Menu */}
       {isOpen && (
         <div className="md:hidden bg-[#111111] shadow-md">
           <ul className="flex flex-col space-y-4 px-6 py-6">
@@ -73,13 +106,25 @@ const Navbar = () => {
               </li>
             ))}
             <li>
-              <Link
-                href="/login"
-                className="block bg-[#E63946] text-white px-5 py-2 rounded-full text-center text-sm font-semibold hover:bg-[#d12e3e] transition"
-                onClick={() => setIsOpen(false)}
-              >
-                Login
-              </Link>
+              {isLoggedIn ? (
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsOpen(false);
+                  }}
+                  className="block w-full bg-[#E63946] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#d12e3e] transition"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className="block bg-[#E63946] text-white px-5 py-2 rounded-full text-center text-sm font-semibold hover:bg-[#d12e3e] transition"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Login
+                </Link>
+              )}
             </li>
           </ul>
         </div>

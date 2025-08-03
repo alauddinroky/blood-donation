@@ -1,11 +1,15 @@
 // components/LoginForm.jsx
 "use client"; // This directive marks the component for client-side rendering
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod"; // Zod works perfectly with plain JavaScript
+// useSearchParams
+
+
 
 // Define the validation schema using Zod
 const loginSchema = z.object({
@@ -19,6 +23,23 @@ const loginSchema = z.object({
 });
 
 const LoginForm = () => {
+  //intialize router
+const router = useRouter();
+const searchParams = useSearchParams();
+const msg = searchParams.get('msg')
+useEffect(() => {
+  const checkLogin = async()=>{
+    try {
+      const res = await fetch('/api/auth/verify')
+      if(res.ok){
+        router.push('/dashboard/donors')
+      }
+    } catch (error) {
+      console.log('you must logged in')
+    }
+  }
+  checkLogin()
+}, [])
   const {
     register,
     handleSubmit,
@@ -31,20 +52,36 @@ const LoginForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Function to handle form submission
-  const onSubmit = async (data) => {
-    setIsSubmitting(true);
-    console.log("Login Data:", data); // Log form data to console
-    await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
-    alert("Login attempt (check console for data)"); // Show a basic alert
+const onSubmit = async (data) => {
+  setIsSubmitting(true);
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data), // 'data' contains email and password
+    });
+    if (response.ok) {
+      const result = await response.json();
+      console.log('Login successful:', result);
+      // Handle successful login: Redirect user, update state, etc.
+      window.location.href = '/dashboard/donors';
+    } else {
+      const errorData = await response.json();
+      alert(errorData.message);
+    }
+  } catch (error) {
+    console.error('Login failed:', error);
+    alert('An unexpected error occurred.');
+  } finally {
     setIsSubmitting(false);
-    // In a real application, you would send this data to your backend for authentication
-  };
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#111111] p-4">
       <div className="w-full max-w-md bg-[#1A1A1A] p-8 rounded-lg shadow-lg border border-[#333333]">
         <h2 className="text-3xl font-bold text-[#E63946] text-center mb-8">
-          Login
+          {msg ? msg : 'Login'}
         </h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
