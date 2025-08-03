@@ -1,120 +1,49 @@
 // components/DonorListPage.jsx
 'use client'
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaCalendarAlt, FaSearch, FaFilter } from "react-icons/fa";
-const dummyDonors = [
-  {
-    id: 1,
-    name: "Afrin Sultana",
-    bloodGroup: "O+",
-    location: "Dhaka, Bangladesh",
-    phone: "+8801712345678",
-    email: "afrin.s@example.com",
-    lastDonation: "2024-12-15",
-  },
-  {
-    id: 2,
-    name: "Md. Karim Rahman",
-    bloodGroup: "A-",
-    location: "Chattogram, Bangladesh",
-    phone: "+8801812345678",
-    email: "karim.r@example.com",
-    lastDonation: "2025-01-20",
-  },
-  {
-    id: 3,
-    name: "Fatima Akter",
-    bloodGroup: "B+",
-    location: "Sylhet, Bangladesh",
-    phone: "+8801912345678",
-    email: "fatima.a@example.com",
-    lastDonation: "2025-02-10",
-  },
-  {
-    id: 4,
-    name: "Imran Khan",
-    bloodGroup: "AB+",
-    location: "Khulna, Bangladesh",
-    phone: "+8801612345678",
-    email: "imran.k@example.com",
-    lastDonation: "2025-03-05",
-  },
-  {
-    id: 5,
-    name: "Nusrat Jahan",
-    bloodGroup: "O-",
-    location: "Rajshahi, Bangladesh",
-    phone: "+8801512345678",
-    email: "nusrat.j@example.com",
-    lastDonation: "2025-04-01",
-  },
-  {
-    id: 6,
-    name: "Alomgir Hossain",
-    bloodGroup: "A+",
-    location: "Dhaka, Bangladesh",
-    phone: "+8801723456789",
-    email: "alomgir.h@example.com",
-    lastDonation: "2025-04-22",
-  },
-  {
-    id: 7,
-    name: "Sabina Yeasmin",
-    bloodGroup: "B-",
-    location: "Chattogram, Bangladesh",
-    phone: "+8801823456789",
-    email: "sabina.y@example.com",
-    lastDonation: "2025-05-18",
-  },
-  {
-    id: 8,
-    name: "Riaz Uddin",
-    bloodGroup: "AB-",
-    location: "Sylhet, Bangladesh",
-    phone: "+8801923456789",
-    email: "riaz.u@example.com",
-    lastDonation: "2025-06-01",
-  },
-  {
-    id: 9,
-    name: "Farah Islam",
-    bloodGroup: "O+",
-    location: "Dhaka, Bangladesh",
-    phone: "+8801734567890",
-    email: "farah.i@example.com",
-    lastDonation: "2025-06-25",
-  },
-  {
-    id: 10,
-    name: "Kamrul Hasan",
-    bloodGroup: "A+",
-    location: "Khulna, Bangladesh",
-    phone: "+8801623456789",
-    email: "kamrul.h@example.com",
-    lastDonation: "2025-07-10",
-  },
-];
-
-const bloodGroups = ["All", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-
 
 const DonorList = () => {
+  const [donors, setDonors] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBloodGroup, setFilterBloodGroup] = useState("All");
   const [filterLocation, setFilterLocation] = useState("");
 
+  const bloodGroups = ["All", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+  // Fetch data from the API when the component mounts
+  useEffect(() => {
+    const fetchDonors = async () => {
+      try {
+        const response = await fetch('/api/donors');
+        if (!response.ok) {
+          throw new Error('Failed to fetch donors');
+        }
+        const data = await response.json();
+        setDonors(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDonors();
+  }, []); // The empty array ensures this runs only once
+
   const filteredDonors = useMemo(() => {
-    let currentDonors = dummyDonors;
+    let currentDonors = donors;
 
     // Filter by search term (name, email, phone, location)
     if (searchTerm) {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
       currentDonors = currentDonors.filter(
         (donor) =>
-          donor.name.toLowerCase().includes(lowerCaseSearchTerm) ||
-          donor.email.toLowerCase().includes(lowerCaseSearchTerm) ||
-          donor.phone.includes(lowerCaseSearchTerm) ||
-          donor.location.toLowerCase().includes(lowerCaseSearchTerm)
+          donor.name?.toLowerCase().includes(lowerCaseSearchTerm) ||
+          donor.email?.toLowerCase().includes(lowerCaseSearchTerm) ||
+          donor.phone?.includes(lowerCaseSearchTerm) ||
+          donor.location?.toLowerCase().includes(lowerCaseSearchTerm)
       );
     }
 
@@ -129,16 +58,32 @@ const DonorList = () => {
     if (filterLocation) {
       const lowerCaseLocation = filterLocation.toLowerCase();
       currentDonors = currentDonors.filter((donor) =>
-        donor.location.toLowerCase().includes(lowerCaseLocation)
+        donor.location?.toLowerCase().includes(lowerCaseLocation)
       );
     }
 
     return currentDonors;
-  }, [searchTerm, filterBloodGroup, filterLocation]);
+  }, [donors, searchTerm, filterBloodGroup, filterLocation]);
+
+  // Handle loading and error states
+  if (isLoading) {
+    return (
+      <div className="bg-[#111111] text-[#FFFFFF] min-h-screen flex items-center justify-center">
+        <p className="text-xl text-[#E63946]">Loading donors...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-[#111111] text-[#FFFFFF] min-h-screen flex items-center justify-center">
+        <p className="text-xl text-[#E63946]">Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#111111] text-[#FFFFFF] min-h-screen">
-
       <div className="container mx-auto px-6 py-12 mt-6">
         {/* Section Heading */}
         <h1 className="text-4xl md:text-5xl font-extrabold text-[#E63946] text-center mb-12">
@@ -195,7 +140,7 @@ const DonorList = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredDonors.map((donor) => (
               <div
-                key={donor.id}
+                key={donor._id} // Using _id from MongoDB as the unique key
                 className="bg-[#1A1A1A] p-6 rounded-xl shadow-lg border border-[#333333] transform hover:scale-105 hover:border-[#E63946] transition duration-300 ease-in-out"
               >
                 <div className="flex justify-between items-start mb-4">
@@ -241,7 +186,6 @@ const DonorList = () => {
           </p>
         )}
       </div>
-
     </div>
   );
 };
